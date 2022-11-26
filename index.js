@@ -20,13 +20,46 @@ const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology:
 async function run(){
     try{
         const categoryCollection = client.db('verseReseller').collection('category')
-        const categoryDetailsCollection = client.db('verseReseller').collection('category')
+        const categoryDetailsCollection = client.db('verseReseller').collection('products')
+        const bookingsCollection = client.db('verseReseller').collection('bookings')
         
 
         app.get('/category', async (req, res) => {
             const query = {}
             const findCategory = await categoryCollection.find(query).toArray()
             res.send(findCategory)
+        })
+
+        app.get('/category/:id', async (req, res) =>{
+            const id= req.params.id;
+            const filter = {category_id:(id)};
+            const categories = await categoryDetailsCollection.find(filter).toArray();
+            res.send(categories)
+        })
+
+        app.get('/bookings', async (req, res) => {
+
+            const query = { }
+            const bookings = await bookingsCollection.find(query).toArray()
+            res.send(bookings)
+        })
+
+        app.post('/bookings', async (req, res) => {
+            const booking = req.body
+            // console.log(booking);
+            const query = {
+                productName: booking.name,
+                email: booking.email,
+                productPrice: booking.resalePrice
+            }
+
+            const itemBooked = await bookingsCollection.find(query).toArray()
+            if (itemBooked.length) {
+                const message = ` You Already have booked the ${booking.productName}`
+                return res.send({ acknowledge: false, message })
+            }
+            const result = await bookingsCollection.insertOne(booking)
+            res.send(result)
         })
     }
     finally{
