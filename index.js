@@ -38,8 +38,8 @@ async function run(){
         })
 
         app.get('/bookings', async (req, res) => {
-
-            const query = { }
+            const email = req.query.email;
+            const query = { email: email }
             const bookings = await bookingsCollection.find(query).toArray()
             res.send(bookings)
         })
@@ -48,14 +48,14 @@ async function run(){
             const booking = req.body
             // console.log(booking);
             const query = {
-                productName: booking.name,
+                name: booking.name,
                 email: booking.email,
                 productPrice: booking.resalePrice
             }
 
             const itemBooked = await bookingsCollection.find(query).toArray()
             if (itemBooked.length) {
-                const message = ` You Already have booked the ${booking.productName}`
+                const message = ` You Already have booked the ${booking.name}`
                 return res.send({ acknowledge: false, message })
             }
             const result = await bookingsCollection.insertOne(booking)
