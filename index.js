@@ -1,5 +1,6 @@
 const express = require('express');
 const cors = require('cors');
+const jwt = require('jsonwebtoken');
 const { MongoClient, ServerApiVersion } = require('mongodb');
 
 const port = process.env.PORT || 5000;
@@ -22,12 +23,19 @@ async function run(){
         const categoryCollection = client.db('verseReseller').collection('category')
         const categoryDetailsCollection = client.db('verseReseller').collection('products')
         const bookingsCollection = client.db('verseReseller').collection('bookings')
+        const usersCollection = client.db('verseReseller').collection('users')
         
 
         app.get('/category', async (req, res) => {
             const query = {}
             const findCategory = await categoryCollection.find(query).toArray()
             res.send(findCategory)
+        })
+        //all products of seller
+        app.get('/allProducts', async (req, res) => {
+            const query = {}
+            const products = await categoryDetailsCollection.find(query).toArray()
+            res.send(products)
         })
 
         app.get('/category/:id', async (req, res) =>{
@@ -60,6 +68,31 @@ async function run(){
             }
             const result = await bookingsCollection.insertOne(booking)
             res.send(result)
+        })
+
+        //save users data in database
+        app.post('/users', async(req, res)=>{
+            const user = req.body;
+            const insertUser = await usersCollection.insertOne(user)
+            res.send(insertUser)
+        })
+
+        //get user data from db
+        app.get('/users', async (req, res) => {
+            const query = {}
+            const user = await usersCollection.find(query).toArray()
+            res.send(user)
+        })
+        //json web token connection
+        app.get('/jwt', async (req, res) => {
+            const email = req.query.email;
+            const query = { email: email }
+            const user = await usersCollection.findOne(query)
+            if (user) {
+                const token = jwt.sign({ email }, process.env.ACCESS_TOKEN, { expiresIn: '2h' })
+                return res.send({ accessToken: token })
+            }
+            res.status(403).send({ accessToken: '' })
         })
     }
     finally{
