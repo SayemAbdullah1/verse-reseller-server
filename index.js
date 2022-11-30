@@ -99,6 +99,14 @@ async function run(){
             res.send(result)
         })
 
+
+        //add products
+        app.post('/allProducts', async (req, res) => {
+            const booking = req.body
+            const result = await categoryDetailsCollection.insertOne(booking)
+            res.send(result)
+        })
+
         //save users data in database
         app.post('/users', async(req, res)=>{
             const user = req.body;
@@ -149,6 +157,13 @@ async function run(){
             const id = req.params.id;
             const filter = { _id: ObjectId(id) }
             const result = await usersCollection.deleteOne(filter)
+            res.send(result)
+        })
+
+        app.delete('/allProducts/seller/:id', async (req, res) => {
+            const id = req.params.id;
+            const filter = { _id: ObjectId(id) }
+            const result = await categoryDetailsCollection.deleteOne(filter)
             res.send(result)
         })
     }
