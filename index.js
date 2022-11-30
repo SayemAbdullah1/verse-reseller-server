@@ -120,14 +120,14 @@ async function run(){
             res.send({ isAdmin: user?.role === 'admin' });
         })
         //seller
-        app.get('/users/admin/:email', async (req, res) => {
+        app.get('/users/sellerRoute/:email', async (req, res) => {
             const email = req.params.email;
             const query = { email }
             const user = await usersCollection.findOne(query);
             res.send({ isSeller: user?.role === 'seller' });
         })
-        //buyer
-        app.get('/users/admin/:email', async (req, res) => {
+        // //buyer
+        app.get('/users/buyerRoute/:email', async (req, res) => {
             const email = req.params.email;
             const query = { email }
             const user = await usersCollection.findOne(query);
